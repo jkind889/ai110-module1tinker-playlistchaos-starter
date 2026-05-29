@@ -238,21 +238,29 @@ def add_song_sidebar():
     tags_text = st.sidebar.text_input("Tags (comma separated)")
 
     if st.sidebar.button("Add to playlist"):
-        raw_tags = [t.strip() for t in tags_text.split(",")]
-        tags = [t for t in raw_tags if t]
-
         song: Song = {
             "title": title,
             "artist": artist,
             "genre": genre,
             "energy": energy,
-            "tags": tags,
+            "tags": parse_tags(tags_text),
         }
         if title and artist:
-            normalized = normalize_song(song)
-            all_songs = st.session_state.songs[:]
-            all_songs.append(normalized)
-            st.session_state.songs = all_songs
+            add_song_to_session(song)
+
+
+def parse_tags(tags_text: str):
+    """Convert comma-separated tag text into a clean list of tags."""
+    raw_tags = [tag.strip() for tag in tags_text.split(",")]
+    return [tag for tag in raw_tags if tag]
+
+
+def add_song_to_session(song: Song):
+    """Normalize a song and store it in the Streamlit session."""
+    normalized = normalize_song(song)
+    all_songs = st.session_state.songs[:]
+    all_songs.append(normalized)
+    st.session_state.songs = all_songs
 
 
 def playlist_tabs(playlists):
